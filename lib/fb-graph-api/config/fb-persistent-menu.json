@@ -1,0 +1,25 @@
+{
+  "persistent_menu": [
+    {
+      "locale": "default",
+      "composer_input_disabled": false,
+      "call_to_actions": [
+        {
+          "type": "postback",
+          "title": "New Sticker by Template",
+          "payload": "NEW_STICKER"
+        },
+        {
+          "type": "postback",
+          "title": "Load Saved Stickers",
+          "payload": "LOAD_STICKER"
+        },
+        {
+          "type": "postback",
+          "title": "Help",
+          "url": "GET_HELP"
+        }
+      ]
+    }
+  ]
+}

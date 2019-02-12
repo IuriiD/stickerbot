@@ -1,0 +1,43 @@
+{
+  "name": "stickerbot",
+  "version": "1.0.0",
+  "description": "Sticket making bot for FB Messenger. Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IuriiD/stickerbot.git"
+  },
+  "keywords": [
+    "bot",
+    "chatbot",
+    "node.js",
+    "stickerbot",
+    "messenger"
+  ],
+  "author": "Iurii Dziuban (iurii.dziuban@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IuriiD/stickerbot/issues"
+  },
+  "homepage": "https://github.com/IuriiD/stickerbot#readme",
+  "devDependencies": {
+    "eslint": "^5.13.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "prettier": "^1.16.4"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "bunyan": "^1.8.12",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "i18n": "^0.8.3",
+    "joi": "^14.3.1",
+    "morgan": "^1.9.1"
+  }
+}
