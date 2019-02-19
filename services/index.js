@@ -4,12 +4,9 @@
  * Responses to all other text inputs will be set up and handled on Dialogflow and only
  * "forwarded" through backend.
  */
-const apiai = require('apiai');
 const config = require('../config/');
 
-const apiAiClient = apiai(config.API_AI_TOKEN);
 const log = require('../config/logger');
-const { dfPost, dfGet } = require('../lib/apiai-api/');
 
 const dialogs = require('./dialogs');
 const helpers = require('./helpers/helpers');
@@ -19,56 +16,7 @@ async function botMessage(event) {
   try {
     const senderId = event.sender.id;
     const message = event.message.text;
-    const apiaiSession = apiAiClient.textRequest(message, {
-      sessionId: senderId,
-    });
-
-    apiaiSession.on('response', async (response) => {
-      const { intentName } = response.result.metadata;
-      log.info(`senderId: ${senderId}, Intent: ${intentName}`);
-      switch (intentName) {
-        case 'Default Welcome Intent':
-          dialogs.defaultWelcomeIntent(senderId);
-          break;
-        case 'processemojis.offers.whatnext':
-          dialogs.processEmojisOffersWhatNext(senderId, response);
-          break;
-        case 'try.again': {
-          const newContexts = helpers.contextAwaitingEmojis;
-          await dfPost(senderId, newContexts);
-          dialogs.tryAgain(senderId);
-          break;
-        }
-        case 'Default Fallback Intent':
-          dialogs.defaultFallbackIntent(senderId, response);
-          break;
-        case 'show.brand.x': {
-          const { brandneeded: brandNeeded } = response.result.parameters;
-          const { resolvedQuery } = response.result;
-          dialogs.showSpecificProduct(senderId, brandNeeded, resolvedQuery);
-          break;
-        }
-        case 'contact.verizon':
-          dialogs.contactVerizon(senderId);
-          break;
-        case 'farewells':
-          dialogs.farewells(senderId);
-          break;
-        case 'smalltalk-brand.love':
-          dialogs.smalltalkBrandLove(senderId);
-          break;
-        case 'smalltalk-tell.me.a.joke':
-          dialogs.smalltalkTellMeAJoke(senderId);
-          break;
-        case 'smalltalk-you.are.welcome':
-          dialogs.smalltalkYouAreWelcome(senderId);
-          break;
-        default:
-          helpers.forwardDfMessages(senderId, response);
-      }
-    });
-    apiaiSession.on('error', error => log.error(`Dialogflow error: ${error}`));
-    apiaiSession.end();
+    dialogs.defaultWelcomeIntent(senderId, message);
   } catch (error) {
     log.error(`botMessage(): ${error}`);
     const senderId = event.sender.id;
@@ -78,6 +26,7 @@ async function botMessage(event) {
 
 // Handle clicks on 'postback'-buttons
 async function botButton(event) {
+  /*
   try {
     const senderId = event.sender.id;
     const { payload } = event.postback;
@@ -121,17 +70,18 @@ async function botButton(event) {
         dialogs.showDevicesForBrand(senderId, 'Google');
         break;
       default:
-        log.info('We\'ve got a botton click from non-existing button!');
+        log.info("We've got a botton click from non-existing button!");
     }
   } catch (error) {
     log.error(`botButton(): ${error}`);
     const senderId = event.sender.id;
     dialogs.ifErrorDefaultFallback(senderId);
-  }
+  } */
 }
 
 // Handle irrelevant input types
 async function botOtherMessageTypes(event) {
+  /*
   console.log('\nbotOtherMessageTypes');
   try {
     const senderId = event.sender.id;
@@ -150,7 +100,7 @@ async function botOtherMessageTypes(event) {
     log.error(`botOtherMessageTypes(): ${error}`);
     const senderId = event.sender.id;
     dialogs.ifErrorDefaultFallback(senderId);
-  }
+  } */
 }
 
 module.exports = {

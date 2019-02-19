@@ -6,6 +6,7 @@ const { sendMessage, sendTyping } = require('../../../lib/fb-graph-api/');
 const { buttonTemplate, postbackButton } = require('../../helpers/basic-templates');
 
 async function defaultFallbackIntent(senderId) {
+  /*
   try {
     // Hmmm… I’m not getting that. What would you like to do?
     // [Describe in 5] [Contact Verizon]
@@ -18,7 +19,7 @@ async function defaultFallbackIntent(senderId) {
     await dfPost(senderId, []);
   } catch (error) {
     log.error(`ifErrorDefaultFallback() error: ${error}`);
-  }
+  } */
 }
 
 module.exports = defaultFallbackIntent;

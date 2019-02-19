@@ -11,7 +11,7 @@ const { initialSetup } = require('./lib/fb-graph-api/');
 
 const app = express();
 
-initialSetup();
+// initialSetup();
 
 app.use(logger('dev'));
 

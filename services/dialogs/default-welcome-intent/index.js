@@ -4,24 +4,18 @@ const log = require('../../../config/logger');
 const config = require('../../../config');
 const { sendMessage, sendTyping, getUserData } = require('../../../lib/fb-graph-api/');
 const { textTemplate } = require('../../helpers/basic-templates');
-const ifErrorDefaultFallback = require('../default-fallback-intent/ifError');
 
-async function defaultWelcomeIntent(senderId) {
+async function defaultWelcomeIntent(senderId, text) {
   try {
-    const { data } = await getUserData(senderId);
-    log.info(`\n\n\nName: ${data.first_name}`);
+    // const { data } = await getUserData(senderId);
+    log.info(`senderId: ${senderId}`);
 
     // Hi, %s! 👋 It’s me, Verizon Emoji's Shopping Assistant, aka VESA!
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
-    await sendMessage(senderId, textTemplate(i18n.__('hello', data.first_name)));
-
-    // Describe the person you’re shopping for in 5 emojis and I’ll
-    // recommend the perfect holiday gift!
-    await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
-    await sendMessage(senderId, textTemplate(i18n.__('prompt_5_emojis')));
+    // await sendMessage(senderId, textTemplate(i18n.__('hello', data.first_name)));
+    await sendMessage(senderId, textTemplate(`You said: ${text}`));
   } catch (error) {
     log.error(`defaultWelcomeIntent() error: ${error}`);
-    ifErrorDefaultFallback(senderId);
   }
 }
 

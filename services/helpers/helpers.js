@@ -2,15 +2,14 @@ const log = require('../../config/logger');
 const config = require('../../config');
 const { sendMessage, sendTyping } = require('../../lib/fb-graph-api');
 const dialogs = require('../dialogs/index');
-const { imageDefaultProducts, linkDefaultProducts } = require('../../config/constants');
 
 function createProjectParams(paramsGallery) {
   const projectUrl = [];
   const imageUrl = [];
   const title = [];
   paramsGallery.forEach(({ Image, LINKS, Product }) => {
-    const imagelink = Image || imageDefaultProducts;
-    const linkProducts = LINKS || linkDefaultProducts;
+    const imagelink = Image;
+    const linkProducts = LINKS;
     log.info('LINKS:', linkProducts);
     projectUrl.push(linkProducts);
     imageUrl.push(imagelink);
