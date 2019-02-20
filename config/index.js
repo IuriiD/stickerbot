@@ -6,11 +6,18 @@ const schema = joi
   .keys({
     ENV: joi.string().default('development'),
     NODE_ENV: joi.string().default('development'),
-    PORT: joi.number().required(),
+    PORT: joi
+      .number()
+      .required()
+      .default(8080),
     FB_PAGE_ACCESS_TOKEN: joi.string().required(),
     FB_API_BASE_URL: joi.string().required(),
-    FB_APP_ID: joi.number().default(4000),
+    FB_APP_ID: joi.number().required(),
     VERIFY_TOKEN: joi.string().required(),
+    DEFAULT_MSG_DELAY_MSEC: joi
+      .number()
+      .required()
+      .default(2000),
   })
   .unknown()
   .required();
