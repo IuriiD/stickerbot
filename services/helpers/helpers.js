@@ -2,6 +2,44 @@ const log = require('../../config/logger');
 const config = require('../../config');
 const { sendMessage, sendTyping } = require('../../lib/fb-graph-api');
 const dialogs = require('../dialogs/index');
+const { User } = require('../../models/');
+
+/**
+ * getStatus() reads status of dialog for user from "Users"
+ * @param {string} userId User's FB PSID
+ * @returns {object} { status: 'ok', payload: 'null || 'imagePrompted' || ...' }
+ * or {status: 'error', payload: '<error message>'}
+ */
+async function getStatus(userId) {
+  try {
+    const queryData = await User.findOne({ attributes: ['status'] }, { where: { psid: userId } });
+    console.log(queryData);
+  } catch (error) {
+    log.info(`getStatus() error: ${error}`);
+    return { status: 'error', payload: `Failed to get dialog status for user ${userId}` };
+  }
+}
+
+getStatus('123').then(res => console.log(res));
+
+/**
+ * setStatus() sets new dialog status in "Users" for user with userId
+ * @param {string} userId User's FB PSID
+ * @param {string} newStatus null || 'imageReceived' || ...
+ * @returns {object} { status: 'ok', payload: '<previous status>' }
+ * or {status: 'error', payload: '<error message>'}
+ */
+async function setStatus(userId, newStatus) {
+  try {
+    console.log('hi');
+  } catch (error) {
+    log.info(`setStatus() error: ${error}`);
+    return {
+      status: 'error',
+      payload: `Failed to set new dialog status ${newStatus} for user ${userId}`,
+    };
+  }
+}
 
 function createProjectParams(paramsGallery) {
   const projectUrl = [];
@@ -100,4 +138,6 @@ module.exports = {
   getButtonPostback,
   contextAwaitingEmojis,
   forwardDfMessages,
+  getStatus,
+  setStatus,
 };
