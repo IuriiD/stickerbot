@@ -8,5 +8,13 @@
   "resend_image": "Ok, please send me another one. Remember that it should be in jpeg or png format, not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max.",
   "bad_image": "Sorry but this won't work. Please send me an image in jpeg or png format, not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max.",
   "bad_phrase": "Sorry but your phrase should be longer than %s symbols. Please try again.",
-  "didnt_get_that": "Sorry but I didn't get that."
+  "didnt_get_that": "Sorry but I didn't get that 🤔",
+  "what_should_i_do": "What should I do?",
+  "btn_title_make_sticker": "Make a sticker",
+  "btn_payload_make_sticker": "MAKE_STICKER",
+  "btn_title_load_sticker": "Load a sticker",
+  "btn_payload_load_sticker": "LOAD_STICKER",
+  "btn_title_help": "Help",
+  "btn_payload_help": "GET_HELP",
+  "btn_payload_get_started": "GET_STARTED"
 }

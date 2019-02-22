@@ -20,7 +20,7 @@ async function getStatus(userId) {
   }
 }
 
-getStatus('123').then(res => console.log(res));
+// getStatus('123').then(res => console.log(res));
 
 /**
  * setStatus() sets new dialog status in "Users" for user with userId

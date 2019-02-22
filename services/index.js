@@ -4,19 +4,28 @@
  * Responses to all other text inputs will be set up and handled on Dialogflow and only
  * "forwarded" through backend.
  */
+const i18n = require('i18n');
 const config = require('../config/');
 
 const log = require('../config/logger');
 
 const dialogs = require('./dialogs');
 const helpers = require('./helpers/helpers');
+const c = require('./helpers/constants');
 
 // Handle text inputs
 async function botMessage(event) {
   try {
     const senderId = event.sender.id;
     const message = event.message.text;
-    dialogs.defaultWelcomeIntent(senderId, message);
+
+    // Greeting
+    if (c.greetings.includes(message.trim().toLowerCase())) {
+      dialogs.defaultWelcomeIntent(senderId);
+    } else {
+      // I didn't understand you
+      dialogs.defaultFallbackIntent(senderId);
+    }
   } catch (error) {
     log.error(`botMessage(): ${error}`);
     const senderId = event.sender.id;
@@ -26,7 +35,6 @@ async function botMessage(event) {
 
 // Handle clicks on 'postback'-buttons
 async function botButton(event) {
-  /*
   try {
     const senderId = event.sender.id;
     const { payload } = event.postback;
@@ -34,13 +42,11 @@ async function botButton(event) {
     console.log(`\n\n\npayload: ${payload}`);
 
     switch (payload) {
-      case 'FACEBOOK_WELCOME': {
-        const newContexts = helpers.contextAwaitingEmojis;
-        await dfPost(senderId, newContexts);
-        dialogs.defaultWelcomeIntent(senderId);
+      case i18n.__('btn_payload_help'): {
+        dialogs.help(senderId);
         break;
       }
-      case 'TRYDESCRIBEIN5':
+      /* case 'TRYDESCRIBEIN5':
       case 'STARTOVER':
       case 'DESCRIBEIN5':
       case 'TRYAGAIN':
@@ -68,7 +74,7 @@ async function botButton(event) {
         break;
       case 'DEVICEBRANDGOOGLE':
         dialogs.showDevicesForBrand(senderId, 'Google');
-        break;
+        break; */
       default:
         log.info("We've got a botton click from non-existing button!");
     }
@@ -76,7 +82,7 @@ async function botButton(event) {
     log.error(`botButton(): ${error}`);
     const senderId = event.sender.id;
     dialogs.ifErrorDefaultFallback(senderId);
-  } */
+  }
 }
 
 // Handle irrelevant input types
