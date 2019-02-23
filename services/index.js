@@ -87,6 +87,8 @@ async function botButton(event) {
 
 // Handle irrelevant input types
 async function botOtherMessageTypes(event) {
+  dialogs.handleAttachments(event);
+  console.log(JSON.stringify(event, null, 2));
   /*
   console.log('\nbotOtherMessageTypes');
   try {

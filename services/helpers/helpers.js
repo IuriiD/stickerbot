@@ -12,15 +12,20 @@ const { User } = require('../../models/');
  */
 async function getStatus(userId) {
   try {
-    const queryData = await User.findOne({ attributes: ['status'] }, { where: { psid: userId } });
-    console.log(queryData);
+    const queryData = await User.findOne(
+      { where: { psid: userId } },
+      { attributes: ['psid', 'status'] },
+    );
+    if (!queryData) return { status: 'error', payload: `User ${userId} not found` };
+    return { status: 'ok', payload: queryData.dataValues.status };
   } catch (error) {
     log.info(`getStatus() error: ${error}`);
     return { status: 'error', payload: `Failed to get dialog status for user ${userId}` };
   }
 }
 
-// getStatus('123').then(res => console.log(res));
+// getStatus('2040820272655975').then(res => console.log(res));
+// User.findOne({ where: { psid: '2040820272655976' } }, { attributes: ['psid'] }).then(res => console.log(res));
 
 /**
  * setStatus() sets new dialog status in "Users" for user with userId
@@ -31,15 +36,49 @@ async function getStatus(userId) {
  */
 async function setStatus(userId, newStatus) {
   try {
-    console.log('hi');
+    const userExists = await User.findOne({ where: { psid: userId } });
+
+    if (userExists) {
+      if (userExists.dataValues.status === newStatus) {
+        return { status: 'ok', payload: `Status ${newStatus} for user ${userId} already set` };
+      }
+
+      const updatedRow = await User.update(
+        {
+          status: newStatus,
+        },
+        { where: { psid: userId } },
+      );
+
+      if (updatedRow) {
+        return {
+          status: 'ok',
+          payload: `Status ${newStatus} for user ${userId} successfully updated`,
+        };
+      }
+
+      return { status: 'error', payload: `Failed to set status ${newStatus} for user ${userId}` };
+    }
+
+    const newRow = await User.create({ psid: userId, status: newStatus });
+    if (newRow) {
+      return { status: 'ok', payload: `Created new user ${userId} with status ${newStatus}` };
+    }
+
+    return {
+      status: 'error',
+      payload: `Failed to create new user ${userId} with status ${newStatus}`,
+    };
   } catch (error) {
     log.info(`setStatus() error: ${error}`);
     return {
       status: 'error',
-      payload: `Failed to set new dialog status ${newStatus} for user ${userId}`,
+      payload: `Got error while trying to set status ${newStatus} for user ${userId}, error: ${error}`,
     };
   }
 }
+
+// setStatus('556665', 'newStatus2').then(res => console.log(res));
 
 function createProjectParams(paramsGallery) {
   const projectUrl = [];

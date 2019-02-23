@@ -1,5 +1,5 @@
 {
-  "hello": "Hi, %s! 👋 I'm a StickerBot, chatbot for making custom stickers",
+  "hello": "Hi, %s! 👋 I'm StickerBot, a chatbot for making custom stickers",
   "to_start_send_image": "To start making a sticker like the one shown below please send me a photo (jpeg or png format, not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max).",
   "botName": "StickerBot",
   "perfect_one": "This one is perfect. I will save it in Templates in case you'll want to reuse it.",
@@ -11,10 +11,6 @@
   "didnt_get_that": "Sorry but I didn't get that 🤔",
   "what_should_i_do": "What should I do?",
   "btn_title_make_sticker": "Make a sticker",
-  "btn_payload_make_sticker": "MAKE_STICKER",
   "btn_title_load_sticker": "Load a sticker",
-  "btn_payload_load_sticker": "LOAD_STICKER",
-  "btn_title_help": "Help",
-  "btn_payload_help": "GET_HELP",
-  "btn_payload_get_started": "GET_STARTED"
+  "btn_title_help": "Help"
 }

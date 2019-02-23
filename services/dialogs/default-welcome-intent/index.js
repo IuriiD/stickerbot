@@ -4,6 +4,8 @@ const log = require('../../../config/logger');
 const config = require('../../../config');
 const { sendMessage, sendTyping, getUserData } = require('../../../lib/fb-graph-api/');
 const t = require('../../helpers/templates');
+const c = require('../../helpers/constants');
+const helpers = require('../../helpers/helpers');
 
 async function defaultWelcomeIntent(senderId) {
   try {
@@ -17,6 +19,10 @@ async function defaultWelcomeIntent(senderId) {
     // not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max)
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
     await sendMessage(senderId, t.textTemplate(i18n.__('to_start_send_image')));
+
+    // Set dialog status to 'awaitingImage'
+    const setStatus = await helpers.setStatus(senderId, c.status_awaiting_image);
+    log.info(setStatus);
   } catch (error) {
     log.error(`defaultWelcomeIntent() error: ${error}`);
   }
