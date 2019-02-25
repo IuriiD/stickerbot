@@ -28,3 +28,10 @@ app.use('/', index);
 app.listen(config.PORT, () => {
   log.info(`Application starts successfully in port ${config.PORT}`);
 });
+
+/**
+ * @TODO NEXT:
+ * Gallery of cards in greeting for choosing sticker template
+ * Reogranize greeting - if returning visitor, change texts (Welcome bac .... . To make your next custom sticker.... instead of Hi...., to make a custom sticker
+ * please choose a template below)
+ */

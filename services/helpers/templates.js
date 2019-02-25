@@ -48,6 +48,25 @@ function buttonTemplate(text, buttons) {
   };
 }
 
+// Media template
+function mediaTemplate(mediaType, url /* , buttons = null */) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'media',
+        elements: [
+          {
+            media_type: mediaType,
+            url,
+            // buttons,
+          },
+        ],
+      },
+    },
+  };
+}
+
 // Single card (generic) template
 function cardTemplate(cardData) {
   return {
@@ -81,4 +100,5 @@ module.exports = {
   buttonTemplate,
   galleryTemplate,
   cardTemplate,
+  mediaTemplate,
 };
