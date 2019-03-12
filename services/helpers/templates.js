@@ -1,6 +1,6 @@
 /**
- * Facebook messenger templages, both basic
- * and customised
+ * Facebook messenger templages, 
+ * both basic and customised
  */
 
 // Text message
@@ -67,14 +67,23 @@ function mediaTemplate(mediaType, url /* , buttons = null */) {
   };
 }
 
-// Single card (generic) template
-function cardTemplate(cardData) {
+function generic(title, url, buttons, subtitle = '') {
   return {
-    title: cardData.title,
-    image_url: cardData.imageUrl,
-    buttons: cardData.buttons,
-    subtitle: cardData.subtitle,
-  };
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'generic',
+          elements: [
+             {
+              title,
+              image_url: url, // "https://s3.amazonaws.com/stickerbot/templates/polaroid_1.png",
+              subtitle,
+              buttons,
+            },
+          ],
+        },
+      },
+  }
 }
 
 // Carousel of cards
@@ -99,6 +108,6 @@ module.exports = {
   shareButton,
   buttonTemplate,
   galleryTemplate,
-  cardTemplate,
   mediaTemplate,
+  generic,
 };

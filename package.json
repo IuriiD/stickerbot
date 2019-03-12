@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "prestart": "./node_modules/.bin/sequelize db:migrate",
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -43,6 +44,6 @@
     "pg": "^7.6.1",
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.41.2",
-    "sequelize-cli": "^5.3.0"
+    "sequelize-cli": "^5.4.0"
   }
 }
