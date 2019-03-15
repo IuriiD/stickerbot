@@ -67,23 +67,35 @@ function mediaTemplate(mediaType, url /* , buttons = null */) {
   };
 }
 
+// Single generic template
 function generic(title, url, buttons, subtitle = '') {
   return {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'generic',
-          elements: [
-             {
-              title,
-              image_url: url, // "https://s3.amazonaws.com/stickerbot/templates/polaroid_1.png",
-              subtitle,
-              buttons,
-            },
-          ],
-        },
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'generic',
+        image_aspect_ratio: 'square',
+        elements: [
+          {
+            title,
+            image_url: url,
+            subtitle,
+            buttons,
+          },
+        ],
       },
-  }
+    },
+  };
+}
+
+// Generic template for carousel
+function genericForCarousel(title, url, buttons, subtitle = '') {
+  return {
+    title,
+    image_url: url,
+    subtitle,
+    buttons,
+  };
 }
 
 // Carousel of cards
@@ -110,4 +122,5 @@ module.exports = {
   galleryTemplate,
   mediaTemplate,
   generic,
+  genericForCarousel,
 };

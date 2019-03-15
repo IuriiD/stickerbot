@@ -1,5 +1,8 @@
 {
-  "hello": "Hi, %s! 👋 I'm StickerBot, a chatbot for making stickers",
+  "hello_username": "Hi, %s! 👋 I'm StickerBot, a chatbot for making stickers",
+  "hello_no_username": "Hi! 👋 I'm StickerBot, a chatbot for making stickers",
+  "welcome_back_username": "Welcome back, %s! 👋",
+  "welcome_back_no_username": "Welcome back! 👋",
   "to_start_choose_template": "To start please choose a template below",
   "to_start_send_image": "To start making a sticker like the one shown below please send me a photo (jpeg or png format, not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max).",
   "botName": "StickerBot",

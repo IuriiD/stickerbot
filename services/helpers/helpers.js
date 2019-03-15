@@ -17,15 +17,54 @@ async function getStatus(userId) {
       { attributes: ['psid', 'status'] },
     );
     if (!queryData) return { status: 'error', payload: `User ${userId} not found` };
-    return { status: 'ok', payload: queryData.dataValues.status };
+    return { status: 200, payload: queryData.dataValues.status };
   } catch (error) {
     log.info(`getStatus() error: ${error}`);
-    return { status: 'error', payload: `Failed to get dialog status for user ${userId}` };
+    return { status: 500, payload: `Failed to get dialog status for user ${userId}` };
   }
 }
 
 // getStatus('2040820272655975').then(res => console.log(res));
 // User.findOne({ where: { psid: '2040820272655976' } }, { attributes: ['psid'] }).then(res => console.log(res));
+
+
+/**
+ * getUserByPSID() returns user record for PSID
+ * @param {string} userId User's FB PSID
+ * @returns { status: 500 || 200, data: error (for 500) || (userSearched || false for 200)}
+ */
+async function getUserByPSID(userId) {
+  const funcName = 'getUserByPSID()';
+  try {
+    const userSearched = await User.findOne({ where: { psid: userId } });
+
+    if (userSearched) {
+      return { status: 200, data: userSearched };
+    }
+    return { status: 200, data: false };
+  } catch (error) {
+    const message = `Failed to retrieve user ${userId} from DB`;
+    log.error(`${funcName}: ${message} = ${error}`);
+    return { status: 500, data: error };
+  }
+}
+
+async function createNewUser(userId, fistName) {
+  const funcName = 'createNewUser()';
+  try {
+    const newRow = await User.create({ psid: userId, fistName });
+    if (newRow) {
+      return { status: 200, payload: `Created new user ${userId}` };
+    }
+    return { status: 500, data: `Failed to create user ${userId} in DB` };
+  } catch (error) {
+    const message = `Failed to create user ${userId} in DB`;
+    log.error(`${funcName}: ${message} = ${error}`);
+    return { status: 500, data: error };
+  }
+}
+
+getUserByPSID('204082027265597').then(res => console.log(res));
 
 /**
  * setStatus() sets new dialog status in "Users" for user with userId
@@ -40,7 +79,7 @@ async function setStatus(userId, newStatus) {
 
     if (userExists) {
       if (userExists.dataValues.status === newStatus) {
-        return { status: 'ok', payload: `Status ${newStatus} for user ${userId} already set` };
+        return { status: 200, data: `Status ${newStatus} for user ${userId} already set` };
       }
 
       const updatedRow = await User.update(
@@ -52,27 +91,27 @@ async function setStatus(userId, newStatus) {
 
       if (updatedRow) {
         return {
-          status: 'ok',
+          status: 200,
           payload: `Status ${newStatus} for user ${userId} successfully updated`,
         };
       }
 
-      return { status: 'error', payload: `Failed to set status ${newStatus} for user ${userId}` };
+      return { status: 500, payload: `Failed to set status ${newStatus} for user ${userId}` };
     }
 
     const newRow = await User.create({ psid: userId, status: newStatus });
     if (newRow) {
-      return { status: 'ok', payload: `Created new user ${userId} with status ${newStatus}` };
+      return { status: 200, payload: `Created new user ${userId} with status ${newStatus}` };
     }
 
     return {
-      status: 'error',
+      status: 500,
       payload: `Failed to create new user ${userId} with status ${newStatus}`,
     };
   } catch (error) {
     log.info(`setStatus() error: ${error}`);
     return {
-      status: 'error',
+      status: 500,
       payload: `Got error while trying to set status ${newStatus} for user ${userId}, error: ${error}`,
     };
   }
@@ -179,4 +218,5 @@ module.exports = {
   forwardDfMessages,
   getStatus,
   setStatus,
+  createNewUser,
 };

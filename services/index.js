@@ -11,7 +11,7 @@ const log = require('../config/logger');
 
 const dialogs = require('./dialogs');
 const helpers = require('./helpers/helpers');
-const c = require('./helpers/constants');
+const constants = require('./helpers/constants');
 
 // Handle text inputs
 async function botMessage(event) {
@@ -20,7 +20,7 @@ async function botMessage(event) {
     const message = event.message.text;
 
     // Greeting
-    if (c.greetings.includes(message.trim().toLowerCase())) {
+    if (constants.greetings.includes(message.trim().toLowerCase())) {
       dialogs.defaultWelcomeIntent(senderId);
     } else {
       // I didn't understand you

@@ -31,6 +31,9 @@ const constants = {
   btn_payload_get_started: 'GET_STARTED',
   // Dialog statuses
   status_awaiting_image: 'awaitingImage',
+  // Custom error messages
+  err501: 'Failed to create user',
+  err502: 'Error fetching user from',
 };
 
 module.exports = constants;

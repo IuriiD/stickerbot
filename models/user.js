@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       psid: DataTypes.STRING,
       status: DataTypes.STRING,
+      firstName: DataTypes.STRING,
     },
     {},
   );
