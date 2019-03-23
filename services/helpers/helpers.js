@@ -3,6 +3,9 @@ const config = require('../../config');
 const { sendMessage, sendTyping } = require('../../lib/fb-graph-api');
 const dialogs = require('../dialogs/index');
 const { User } = require('../../models/');
+const stickerTemplates = require('../helpers/stickerTemplates');
+const templates = require('../helpers/templates');
+const constants = require('../helpers/constants');
 
 /**
  * getStatus() reads status of dialog for user from "Users"
@@ -24,10 +27,6 @@ async function getStatus(userId) {
   }
 }
 
-// getStatus('2040820272655975').then(res => console.log(res));
-// User.findOne({ where: { psid: '2040820272655976' } }, { attributes: ['psid'] }).then(res => console.log(res));
-
-
 /**
  * getUserByPSID() returns user record for PSID
  * @param {string} userId User's FB PSID
@@ -37,7 +36,6 @@ async function getUserByPSID(userId) {
   const funcName = 'getUserByPSID()';
   try {
     const userSearched = await User.findOne({ where: { psid: userId } });
-
     if (userSearched) {
       return { status: 200, data: userSearched };
     }
@@ -49,22 +47,36 @@ async function getUserByPSID(userId) {
   }
 }
 
-async function createNewUser(userId, fistName) {
+/**
+ * createNewUser() adds a new user to DB ("Users")
+ * @param {string} userId User's FB PSID
+ * @param {string} firstName User's first name on FB
+ */
+async function createNewUser(userId, firstName) {
   const funcName = 'createNewUser()';
   try {
-    const newRow = await User.create({ psid: userId, fistName });
-    if (newRow) {
-      return { status: 200, payload: `Created new user ${userId}` };
+    const userExists = await getUserByPSID(userId);
+    if (userExists.status === 200) {
+      if (userExists.data === false) {
+        log.info(`${funcName}: Adding user ${userId} to DB`);
+        const newRow = await User.create({ psid: userId, firstName });
+        if (newRow) {
+          return { status: 200, payload: `Created new user ${userId}` };
+        }
+        return { status: 500, data: `Failed to create user ${userId} in DB` };
+      }
+      const message = `User ${userId} exists, no need to create it`;
+      log.info(`${funcName}: ${message}`);
+      return { status: 200, data: message };
     }
-    return { status: 500, data: `Failed to create user ${userId} in DB` };
+    log.error(`${funcName}: `, userExists.data);
+    return { status: userExists.status, data: userExists.data };
   } catch (error) {
     const message = `Failed to create user ${userId} in DB`;
     log.error(`${funcName}: ${message} = ${error}`);
     return { status: 500, data: error };
   }
 }
-
-getUserByPSID('204082027265597').then(res => console.log(res));
 
 /**
  * setStatus() sets new dialog status in "Users" for user with userId
@@ -92,33 +104,105 @@ async function setStatus(userId, newStatus) {
       if (updatedRow) {
         return {
           status: 200,
-          payload: `Status ${newStatus} for user ${userId} successfully updated`,
+          data: `Status ${newStatus} for user ${userId} successfully updated`,
         };
       }
 
-      return { status: 500, payload: `Failed to set status ${newStatus} for user ${userId}` };
+      return { status: 500, data: `Failed to set status ${newStatus} for user ${userId}` };
     }
 
     const newRow = await User.create({ psid: userId, status: newStatus });
     if (newRow) {
-      return { status: 200, payload: `Created new user ${userId} with status ${newStatus}` };
+      return { status: 200, data: `Created new user ${userId} with status ${newStatus}` };
     }
 
     return {
       status: 500,
-      payload: `Failed to create new user ${userId} with status ${newStatus}`,
+      data: `Failed to create new user ${userId} with status ${newStatus}`,
     };
   } catch (error) {
     log.info(`setStatus() error: ${error}`);
     return {
       status: 500,
-      payload: `Got error while trying to set status ${newStatus} for user ${userId}, error: ${error}`,
+      data: `Got error while trying to set status ${newStatus} for user ${userId}, error: ${error}`,
     };
   }
 }
 
-// setStatus('556665', 'newStatus2').then(res => console.log(res));
+/**
+ * getRandomPhrase() returns a random phrase from the passed array
+ */
+function getRandomPhrase(phrasesArray) {
+  if (phrasesArray.length === 0) return false;
+  const randPos = Math.floor(Math.random() * (phrasesArray.length + 1));
+  return phrasesArray[randPos];
+}
 
+/**
+ * getStickerTemplatesCarousel() generates a payload to
+ * display a carousel of cards showing available sticker templates
+ */
+function getStickerTemplatesCarousel() {
+  const funcName = 'listTemplates()';
+  try {
+    if (Object.keys(stickerTemplates).length === 0) {
+      const message = 'No sticker templates found, aborting';
+      log.error(`${funcName}: ${message}`);
+      return { status: 500, data: message };
+    }
+
+    log.info(
+      `${funcName}: ${Object.keys(stickerTemplates).length} sticker templates are available`,
+    );
+
+    const templateCardsArray = [];
+
+    if (Object.keys(stickerTemplates).length <= 10) {
+      log.info(`${funcName}: We've got <=10 templates (${Object.keys(stickerTemplates).length})`);
+      Object.keys(stickerTemplates).forEach((stickerTemplate) => {
+        log.info(`Parsing template ${stickerTemplate}`);
+        const templateData = stickerTemplates[stickerTemplate];
+        log.info(templateData);
+
+        const templateButtons = [
+          {
+            type: 'postback',
+            title: getRandomPhrase(constants.chooseTemplateBtnTitles),
+            payload: constants.btn_payload_sticker_template.replace(
+              '%s',
+              templateData.templateCodeName,
+            ),
+          },
+        ];
+
+        const singleCard4Carousel = templates.genericForCarousel(
+          templateData.templateNameForHumans,
+          templateData.templateExampleImageUrl,
+          templateButtons,
+          templateData.templateRequirementsText,
+        );
+
+        templateCardsArray.push(singleCard4Carousel);
+      });
+    }
+
+    log.info('Final array for carousel: ', templateCardsArray);
+    log.info('Final carousel: ', templates.galleryTemplate(templateCardsArray));
+
+    // FB cards carousel can have <=10 cards, so if we have more
+    // than 10 - show 9 and a card "Show next templates"
+    log.info(`${funcName}: Returning data to display a carousel of sticker templates`);
+    return { status: 200, data: templates.galleryTemplate(templateCardsArray) };
+  } catch (error) {
+    log.error(`${funcName}: error: `, error);
+    return {
+      status: 500,
+      data: error,
+    };
+  }
+}
+
+// EXTRA (TO BE DELETED)
 function createProjectParams(paramsGallery) {
   const projectUrl = [];
   const imageUrl = [];
@@ -212,11 +296,14 @@ async function forwardDfMessages(senderId, response) {
 }
 
 module.exports = {
+  getStatus,
+  setStatus,
+  createNewUser,
+  getUserByPSID,
+  getStickerTemplatesCarousel,
+  // EXTRA
   createProjectParams,
   getButtonPostback,
   contextAwaitingEmojis,
   forwardDfMessages,
-  getStatus,
-  setStatus,
-  createNewUser,
 };
