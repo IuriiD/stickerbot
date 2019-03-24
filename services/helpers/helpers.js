@@ -10,8 +10,8 @@ const constants = require('../helpers/constants');
 /**
  * getStatus() reads status of dialog for user from "Users"
  * @param {string} userId User's FB PSID
- * @returns {object} { status: 'ok', payload: 'null || 'imagePrompted' || ...' }
- * or {status: 'error', payload: '<error message>'}
+ * @returns {object} { status: 200, data: 'null || 'imagePrompted' || ...' }
+ * or {status: 500, data: '<error message>'}
  */
 async function getStatus(userId) {
   try {
@@ -19,11 +19,11 @@ async function getStatus(userId) {
       { where: { psid: userId } },
       { attributes: ['psid', 'status'] },
     );
-    if (!queryData) return { status: 'error', payload: `User ${userId} not found` };
-    return { status: 200, payload: queryData.dataValues.status };
+    if (!queryData) return { status: 500, data: `User ${userId} not found` };
+    return { status: 200, data: queryData.dataValues.status };
   } catch (error) {
     log.info(`getStatus() error: ${error}`);
-    return { status: 500, payload: `Failed to get dialog status for user ${userId}` };
+    return { status: 500, data: `Failed to get dialog status for user ${userId}` };
   }
 }
 
@@ -61,7 +61,7 @@ async function createNewUser(userId, firstName) {
         log.info(`${funcName}: Adding user ${userId} to DB`);
         const newRow = await User.create({ psid: userId, firstName });
         if (newRow) {
-          return { status: 200, payload: `Created new user ${userId}` };
+          return { status: 200, data: `Created new user ${userId}` };
         }
         return { status: 500, data: `Failed to create user ${userId} in DB` };
       }
@@ -82,8 +82,8 @@ async function createNewUser(userId, firstName) {
  * setStatus() sets new dialog status in "Users" for user with userId
  * @param {string} userId User's FB PSID
  * @param {string} newStatus null || 'imageReceived' || ...
- * @returns {object} { status: 'ok', payload: '<previous status>' }
- * or {status: 'error', payload: '<error message>'}
+ * @returns {object} { status: 200, data: '<previous status>' }
+ * or {status: 500, data: '<error message>'}
  */
 async function setStatus(userId, newStatus) {
   try {
@@ -189,6 +189,7 @@ function getStickerTemplatesCarousel() {
     log.info('Final array for carousel: ', templateCardsArray);
     log.info('Final carousel: ', templates.galleryTemplate(templateCardsArray));
 
+    // @TODO
     // FB cards carousel can have <=10 cards, so if we have more
     // than 10 - show 9 and a card "Show next templates"
     log.info(`${funcName}: Returning data to display a carousel of sticker templates`);

@@ -73,33 +73,15 @@ async function defaultWelcomeIntent(senderId) {
 
     // Carousel of sticker templates
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
-    /* const templateButtons = [
-      {
-        type: 'postback',
-        title: 'Start Chatting',
-        payload: 'DEVELOPER_DEFINED_PAYLOAD',
-      },
-    ];
-
-    const singleCard4Carousel = templates.genericForCarousel(
-      'Hello',
-      'https://s3.amazonaws.com/stickerbot/templates/polaroid_1.png',
-      templateButtons,
-    ); */
     const templatesAvailable = helpers.getStickerTemplatesCarousel();
     if (templatesAvailable.status === 200) {
       log.info(`${funcName}: Showing a carousel of available templates`);
-      log.info(templatesAvailable.data);
       await sendMessage(senderId, templatesAvailable.data);
     } else {
       log.error(`${funcName}: error = `, templatesAvailable.data);
     }
-
-    // Set dialog status to 'awaitingImage'
-    const setStatus = await helpers.setStatus(senderId, constants.status_awaiting_image);
-    log.info(`${funcName}: setStatus =`, setStatus);
   } catch (error) {
-    log.error(`defaultWelcomeIntent() error: ${error}`);
+    log.error(`${funcName} error: ${error}`);
   }
 }
 
