@@ -1,5 +1,5 @@
 /**
- * Facebook messenger templages, 
+ * Facebook messenger templages,
  * both basic and customised
  */
 

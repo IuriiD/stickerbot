@@ -12,39 +12,103 @@ const log = require('../config/logger');
 const dialogs = require('./dialogs');
 const helpers = require('./helpers/helpers');
 const constants = require('./helpers/constants');
+const stickerTemplates = require('./helpers/stickerTemplates');
 
 // Handle text inputs
 async function botMessage(event) {
+  const funcName = 'botMessage()';
   try {
     const senderId = event.sender.id;
+    log.info(`${funcName}: senderId = ${senderId}`);
     const message = event.message.text;
+    log.info(`${funcName}: message = ${event.message.text}`);
+    const dialogStatusData = await helpers.getStatus(senderId);
+    log.info(`${funcName}: dialogStatus = `, dialogStatusData);
+    let dialogStatus = null;
+    if (dialogStatusData.status === 200) {
+      dialogStatus = dialogStatusData.data;
+    }
 
     // Greeting
     if (constants.greetings.includes(message.trim().toLowerCase())) {
-      dialogs.defaultWelcomeIntent(senderId);
-    } else {
-      // I didn't understand you
-      dialogs.defaultFallbackIntent(senderId);
+      if (!dialogStatus) {
+        // Greeet user and suggest to choose a sticker template
+        // Dialog status >> 'choosingTemplate'
+        const setStatus = await helpers.setStatus(senderId, constants.status_choosing_template);
+        log.info(`${funcName}: setStatus =`, setStatus);
+        return dialogs.defaultWelcomeIntent(senderId);
+      }
+
+      // But in case we are in the middle of some flow - ask user to confirm restarting
+      // No dialog status change
+      return dialogs.confirmRestart(senderId);
     }
+
+    // I didn't understand you
+    // Dialog status >> null
+    const clearStatus = await helpers.setStatus(senderId, null);
+    log.info(`${funcName}: clearStatus =`, clearStatus);
+    return dialogs.defaultFallbackIntent(senderId);
   } catch (error) {
-    log.error(`botMessage(): ${error}`);
+    log.error(`${funcName}: ${error}`);
     const senderId = event.sender.id;
-    dialogs.ifErrorDefaultFallback(senderId);
+    dialogs.somethingWentWrong(senderId);
   }
 }
 
 // Handle clicks on 'postback'-buttons
 async function botButton(event) {
+  const funcName = 'botButton()';
   try {
     const senderId = event.sender.id;
+    log.info(`${funcName}: senderId = ${senderId}`);
     const { payload } = event.postback;
-
-    console.log(`\n\n\npayload: ${payload}`);
+    log.info(`${funcName}: payload = ${payload}`);
+    const dialogStatus = await helpers.getStatus(senderId);
+    log.info(`${funcName}: dialogStatus = `, dialogStatus);
 
     switch (payload) {
-      case i18n.__('btn_payload_help'): {
-        dialogs.help(senderId);
-        break;
+      // Confirm restart - Yes
+      case constants.btn_payload_confirm_restart_yes: {
+        log.info(`${funcName}: Confirm restart >> Yes, launching dialog "defaultWelcomeIntent"`);
+        if (dialogStatus) {
+          // Dialog status >> 'choosingTemplate'
+          const setStatus = await helpers.setStatus(senderId, constants.status_choosing_template);
+          log.info(`${funcName}: setStatus =`, setStatus);
+          return dialogs.defaultWelcomeIntent(senderId);
+        }
+
+        // Ok, then continue
+        // Dialog status unchanged
+        log.info(
+          `${funcName}: Confirm restart >> No, launching dialog "okThenGoOn", dialog status unchanged`,
+        );
+        return dialogs.okThenGoOn(senderId);
+      }
+
+      // Confirm restart - No
+      case constants.btn_payload_confirm_restart_no: {
+        // Ok, then continue
+        // Dialog status unchanged
+        log.info(
+          `${funcName}: Confirm restart >> No, launching dialog "okThenGoOn", dialog status unchanged`,
+        );
+        return dialogs.okThenGoOn(senderId);
+      }
+
+      // Sticker Templates - Polaroid-1
+      case `${constants.btn_payload_sticker_template.replace(
+        '%s',
+        stickerTemplates.polaroid1.templateCodeName,
+      )}`: {
+        log.info(`${funcName}: Choose templage >> POLAROID1`);
+        // Dialog status >> 'POLAROID1#awaitingImage'
+        const setStatus = await helpers.setStatus(
+          senderId,
+          `${stickerTemplates.polaroid1.templateCodeName}#${constants.status_awaiting_image}`,
+        );
+        log.info(`${funcName}: setStatus =`, setStatus);
+        return dialogs.sendImage(senderId);
       }
       /* case 'TRYDESCRIBEIN5':
       case 'STARTOVER':
@@ -85,10 +149,9 @@ async function botButton(event) {
   }
 }
 
-// Handle irrelevant input types
+// Handle attachments
 async function botOtherMessageTypes(event) {
   dialogs.handleAttachments(event);
-  console.log(JSON.stringify(event, null, 2));
   /*
   console.log('\nbotOtherMessageTypes');
   try {
