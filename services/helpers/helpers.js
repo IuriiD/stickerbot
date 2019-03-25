@@ -219,4 +219,5 @@ module.exports = {
   getStatus,
   setStatus,
   createNewUser,
+  getUserByPSID,
 };
