@@ -38,9 +38,11 @@ async function defaultWelcomeIntent(senderId) {
           `${funcName}: sending "Hi[, ${firstName}]! 👋 I'm a StickerBot, chatbot for making stickers."`,
         );
         if (firstName) {
-          await sendMessage(senderId, templates.textTemplate(i18n.__('hello_username', firstName)));
+          await sendMessage(senderId, templates.textTemplate(constants.hello_username.replace('%s', firstName)));
+          //await sendMessage(senderId, templates.textTemplate(i18n.__('hello_username', firstName)));
         } else {
-          await sendMessage(senderId, templates.textTemplate(i18n.__('hello_no_username')));
+          await sendMessage(senderId, templates.textTemplate(constants.hello_no_username));
+          //await sendMessage(senderId, templates.textTemplate(i18n.__('hello_no_username')));
         }
       } else {
         // Existing user
@@ -49,16 +51,18 @@ async function defaultWelcomeIntent(senderId) {
         await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
         log.info(
           `${funcName}: sending "Welcome back[, ${
-            getUser.data.firstName
+          getUser.data.firstName
           }]! 👋 I'm a StickerBot, chatbot for making stickers."`,
         );
         if (getUser.data.firstName) {
           await sendMessage(
             senderId,
-            templates.textTemplate(i18n.__('welcome_back_username', getUser.data.firstName)),
+            //templates.textTemplate(i18n.__('welcome_back_username', getUser.data.firstName)),
+            templates.textTemplate(constants.welcome_back_username.replace('%s', getUser.data.firstName)),
           );
         } else {
-          await sendMessage(senderId, templates.textTemplate(i18n.__('welcome_back_no_username')));
+          //await sendMessage(senderId, templates.textTemplate(i18n.__('welcome_back_no_username')));
+          await sendMessage(senderId, templates.textTemplate(constants.welcome_back_no_username));
         }
       }
     } else {
@@ -69,7 +73,9 @@ async function defaultWelcomeIntent(senderId) {
     // To start please choose a template below
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
     log.info(`${funcName}: sending "To start please choose a template below"`);
-    await sendMessage(senderId, templates.textTemplate(i18n.__('to_start_choose_template')));
+    //await sendMessage(senderId, templates.textTemplate(i18n.__('to_start_choose_template')));
+    await sendMessage(senderId, templates.textTemplate(constants.to_start_choose_template));
+
 
     // Carousel of sticker templates
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);

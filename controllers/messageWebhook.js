@@ -9,7 +9,7 @@ module.exports = (req, res) => {
         } else if (event.postback && event.postback.payload) {
           processMessage.botButton(event);
         } else if (event.message && event.message.attachments) {
-          processMessage.botOtherMessageTypes(event);
+          processMessage.botAttachment(event);
         }
       });
     });

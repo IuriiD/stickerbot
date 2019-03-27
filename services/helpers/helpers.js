@@ -302,6 +302,7 @@ module.exports = {
   createNewUser,
   getUserByPSID,
   getStickerTemplatesCarousel,
+  getRandomPhrase,
   // EXTRA
   createProjectParams,
   getButtonPostback,

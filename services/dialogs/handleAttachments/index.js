@@ -3,9 +3,32 @@ const i18n = require('i18n');
 const log = require('../../../config/logger');
 const config = require('../../../config');
 const { sendMessage, sendTyping, getUserData } = require('../../../lib/fb-graph-api/');
-const t = require('../../helpers/templates');
+const templates = require('../../helpers/templates');
+const constants = require('../../helpers/constants');
 
-async function handleAttachments(event) {
+async function handleAttachments(event, dialogStatus) {
+  const funcName = 'handleAttachments()';
+  const senderId = event.sender.id;
+
+  // Process image depending on dialog status
+  if (!dialogStatus || (dialogStatus && !dialogStatus.includes('awaitingImage'))) {
+    // Nice image but what do you want? [Make a sticker] [Help] etc
+    const buttons = [
+      templates.postbackButton(i18n.__('btn_title_make_sticker'), constants.btn_payload_make_sticker),
+      templates.postbackButton(i18n.__('btn_title_help'), constants.btn_payload_help),
+    ];
+    await sendMessage(senderId, templates.buttonTemplate(i18n.__('nice_image_but_wtf'), buttons));
+    // .textTemplate(event.message.attachments[0].payload.url));
+  }
+
+  // Save image to server
+  // Depending on template selected - generate a [pre-]sticker
+  // Update dialogStatus
+  // If ready sticker - save it to S3 and record in DB
+  // We won't be saving partly ready stickers ('superTemplates') so far
+
+
+
   console.log(JSON.stringify(event, null, 2));
   try {
     const senderId = event.sender.id;

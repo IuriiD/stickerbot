@@ -101,15 +101,15 @@ async function botButton(event) {
         '%s',
         stickerTemplates.polaroid1.templateCodeName,
       )}`: {
-        log.info(`${funcName}: Choose templage >> POLAROID1`);
-        // Dialog status >> 'POLAROID1#awaitingImage'
-        const setStatus = await helpers.setStatus(
-          senderId,
-          `${stickerTemplates.polaroid1.templateCodeName}#${constants.status_awaiting_image}`,
-        );
-        log.info(`${funcName}: setStatus =`, setStatus);
-        return dialogs.sendImage(senderId);
-      }
+          log.info(`${funcName}: Choose templage >> POLAROID1`);
+          // Dialog status >> 'POLAROID1#awaitingImage'
+          const setStatus = await helpers.setStatus(
+            senderId,
+            `${stickerTemplates.polaroid1.templateCodeName}#${constants.status_awaiting_image}`,
+          );
+          log.info(`${funcName}: setStatus =`, setStatus);
+          return dialogs.sendImage(senderId);
+        }
       /* case 'TRYDESCRIBEIN5':
       case 'STARTOVER':
       case 'DESCRIBEIN5':
@@ -143,39 +143,32 @@ async function botButton(event) {
         log.info("We've got a botton click from non-existing button!");
     }
   } catch (error) {
-    log.error(`botButton(): ${error}`);
-    const senderId = event.sender.id;
-    dialogs.ifErrorDefaultFallback(senderId);
+    const message = `Error processing button click: ${error}`;
+    log.error(`${funcName}: ${message}`);
+    // @TODO Failure dialog
   }
 }
 
 // Handle attachments
-async function botOtherMessageTypes(event) {
-  dialogs.handleAttachments(event);
-  /*
-  console.log('\nbotOtherMessageTypes');
+async function botAttachment(event) {
+  const funcName = 'botAttachment()';
   try {
     const senderId = event.sender.id;
-    // 2 main cases depending on DF context:
-    const awaitingEmojis = await dfGet(senderId, 'awaitingemojis');
-    log.info(`senderId ${senderId}, awaitingEmojis: ${JSON.stringify(awaitingEmojis)}`);
-    // user enters extra stuff when emojis are expected >> 'Invalid input' and
-    if (awaitingEmojis && awaitingEmojis.name && awaitingEmojis.name === 'awaitingemojis') {
-      dialogs.handleFailedEmojisInput(senderId, 'invalid_input', []);
-      // ... all other contexts >> Default Fallback Intent
-    } else {
-      log.info(`senderId ${senderId}, context awaitingemojis - NOT found`);
-      dialogs.defaultFallbackIntent(senderId);
-    }
+    log.info(`${funcName}: senderId = ${senderId}`);
+    log.info(`${funcName}: event.message.attachments =`, event.message.attachments);
+    const dialogStatus = await helpers.getStatus(senderId);
+    log.info(`${funcName}: dialogStatus = `, dialogStatus);
+
+    dialogs.handleAttachments(event, dialogStatus.data);
   } catch (error) {
-    log.error(`botOtherMessageTypes(): ${error}`);
-    const senderId = event.sender.id;
-    dialogs.ifErrorDefaultFallback(senderId);
-  } */
+    const message = `Error processing attachment: ${error}`;
+    log.error(`${funcName}: ${message}`);
+    // @TODO Failure dialog
+  }
 }
 
 module.exports = {
   botMessage,
   botButton,
-  botOtherMessageTypes,
+  botAttachment,
 };
