@@ -14,10 +14,13 @@ async function handleAttachments(event, dialogStatus) {
   if (!dialogStatus || (dialogStatus && !dialogStatus.includes('awaitingImage'))) {
     // Nice image but what do you want? [Make a sticker] [Help] etc
     const buttons = [
-      templates.postbackButton(i18n.__('btn_title_make_sticker'), constants.btn_payload_make_sticker),
-      templates.postbackButton(i18n.__('btn_title_help'), constants.btn_payload_help),
+      templates.postbackButton(
+        constants.btn_payload_new_sticker,
+        constants.btn_payload_new_sticker,
+      ),
+      templates.postbackButton(constants.btn_title_help, constants.btn_payload_help),
     ];
-    await sendMessage(senderId, templates.buttonTemplate(i18n.__('nice_image_but_wtf'), buttons));
+    await sendMessage(senderId, templates.buttonTemplate(constants.nice_image_but_wtf, buttons));
     // .textTemplate(event.message.attachments[0].payload.url));
   }
 
@@ -26,8 +29,6 @@ async function handleAttachments(event, dialogStatus) {
   // Update dialogStatus
   // If ready sticker - save it to S3 and record in DB
   // We won't be saving partly ready stickers ('superTemplates') so far
-
-
 
   console.log(JSON.stringify(event, null, 2));
   try {

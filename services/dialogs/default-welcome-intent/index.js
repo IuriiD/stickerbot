@@ -1,5 +1,3 @@
-const i18n = require('i18n');
-
 const log = require('../../../config/logger');
 const config = require('../../../config');
 const { sendMessage, sendTyping, getUserData } = require('../../../lib/fb-graph-api/');
@@ -39,10 +37,8 @@ async function defaultWelcomeIntent(senderId) {
         );
         if (firstName) {
           await sendMessage(senderId, templates.textTemplate(constants.hello_username.replace('%s', firstName)));
-          //await sendMessage(senderId, templates.textTemplate(i18n.__('hello_username', firstName)));
         } else {
           await sendMessage(senderId, templates.textTemplate(constants.hello_no_username));
-          //await sendMessage(senderId, templates.textTemplate(i18n.__('hello_no_username')));
         }
       } else {
         // Existing user
@@ -57,11 +53,9 @@ async function defaultWelcomeIntent(senderId) {
         if (getUser.data.firstName) {
           await sendMessage(
             senderId,
-            //templates.textTemplate(i18n.__('welcome_back_username', getUser.data.firstName)),
             templates.textTemplate(constants.welcome_back_username.replace('%s', getUser.data.firstName)),
           );
         } else {
-          //await sendMessage(senderId, templates.textTemplate(i18n.__('welcome_back_no_username')));
           await sendMessage(senderId, templates.textTemplate(constants.welcome_back_no_username));
         }
       }
@@ -73,7 +67,6 @@ async function defaultWelcomeIntent(senderId) {
     // To start please choose a template below
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
     log.info(`${funcName}: sending "To start please choose a template below"`);
-    //await sendMessage(senderId, templates.textTemplate(i18n.__('to_start_choose_template')));
     await sendMessage(senderId, templates.textTemplate(constants.to_start_choose_template));
 
 

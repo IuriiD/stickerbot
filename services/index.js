@@ -4,11 +4,7 @@
  * Responses to all other text inputs will be set up and handled on Dialogflow and only
  * "forwarded" through backend.
  */
-const i18n = require('i18n');
-const config = require('../config/');
-
 const log = require('../config/logger');
-
 const dialogs = require('./dialogs');
 const helpers = require('./helpers/helpers');
 const constants = require('./helpers/constants');
@@ -18,16 +14,8 @@ const stickerTemplates = require('./helpers/stickerTemplates');
 async function botMessage(event) {
   const funcName = 'botMessage()';
   try {
-    const senderId = event.sender.id;
-    log.info(`${funcName}: senderId = ${senderId}`);
-    const message = event.message.text;
-    log.info(`${funcName}: message = ${event.message.text}`);
-    const dialogStatusData = await helpers.getStatus(senderId);
-    log.info(`${funcName}: dialogStatus = `, dialogStatusData);
-    let dialogStatus = null;
-    if (dialogStatusData.status === 200) {
-      dialogStatus = dialogStatusData.data;
-    }
+    // Get initial data
+    const { senderId, text: message, dialogStatus } = await helpers.getInputData(event);
 
     // Greeting
     if (constants.greetings.includes(message.trim().toLowerCase())) {
@@ -60,14 +48,22 @@ async function botMessage(event) {
 async function botButton(event) {
   const funcName = 'botButton()';
   try {
-    const senderId = event.sender.id;
-    log.info(`${funcName}: senderId = ${senderId}`);
-    const { payload } = event.postback;
-    log.info(`${funcName}: payload = ${payload}`);
-    const dialogStatus = await helpers.getStatus(senderId);
-    log.info(`${funcName}: dialogStatus = `, dialogStatus);
+    // Get initial data
+    const { senderId, btnPayload: payload, dialogStatus } = await helpers.getInputData(event);
 
     switch (payload) {
+      // Get started
+      case constants.btn_payload_get_started: {
+        if (!dialogStatus) {
+          // Greeet user and suggest to choose a sticker template
+          // Dialog status >> 'choosingTemplate'
+          const setStatus = await helpers.setStatus(senderId, constants.status_choosing_template);
+          log.info(`${funcName}: setStatus =`, setStatus);
+          return dialogs.defaultWelcomeIntent(senderId);
+        }
+        break;
+      }
+
       // Confirm restart - Yes
       case constants.btn_payload_confirm_restart_yes: {
         log.info(`${funcName}: Confirm restart >> Yes, launching dialog "defaultWelcomeIntent"`);
@@ -101,44 +97,15 @@ async function botButton(event) {
         '%s',
         stickerTemplates.polaroid1.templateCodeName,
       )}`: {
-          log.info(`${funcName}: Choose templage >> POLAROID1`);
-          // Dialog status >> 'POLAROID1#awaitingImage'
-          const setStatus = await helpers.setStatus(
-            senderId,
-            `${stickerTemplates.polaroid1.templateCodeName}#${constants.status_awaiting_image}`,
-          );
-          log.info(`${funcName}: setStatus =`, setStatus);
-          return dialogs.sendImage(senderId);
-        }
-      /* case 'TRYDESCRIBEIN5':
-      case 'STARTOVER':
-      case 'DESCRIBEIN5':
-      case 'TRYAGAIN':
-      case 'TRY5NEWEMOJIS':
-      case '#DESCRIBEIN5': {
-        const newContexts = helpers.contextAwaitingEmojis;
-        await dfPost(senderId, newContexts);
-        dialogs.tryAgain(senderId);
-        break;
+        log.info(`${funcName}: Choose templage >> POLAROID1`);
+        // Dialog status >> 'POLAROID1#awaitingImage'
+        const setStatus = await helpers.setStatus(
+          senderId,
+          `${stickerTemplates.polaroid1.templateCodeName}#${constants.status_awaiting_image}`,
+        );
+        log.info(`${funcName}: setStatus =`, setStatus);
+        return dialogs.sendImage(senderId);
       }
-      case 'CUSTOMERSERVICE':
-        dialogs.contactVerizon(senderId);
-        break;
-      case 'SHARE#DESCRIBEIN5':
-        dialogs.showGif(senderId);
-        break;
-      case 'SHOPBYBRAND':
-        dialogs.changeDeviceBrand(senderId);
-        break;
-      case 'DEVICEBRANDSAMSUNG':
-        dialogs.showDevicesForBrand(senderId, 'Samsung');
-        break;
-      case 'DEVICEBRANDAPPLE':
-        dialogs.showDevicesForBrand(senderId, 'Apple');
-        break;
-      case 'DEVICEBRANDGOOGLE':
-        dialogs.showDevicesForBrand(senderId, 'Google');
-        break; */
       default:
         log.info("We've got a botton click from non-existing button!");
     }
@@ -153,13 +120,10 @@ async function botButton(event) {
 async function botAttachment(event) {
   const funcName = 'botAttachment()';
   try {
-    const senderId = event.sender.id;
-    log.info(`${funcName}: senderId = ${senderId}`);
-    log.info(`${funcName}: event.message.attachments =`, event.message.attachments);
-    const dialogStatus = await helpers.getStatus(senderId);
-    log.info(`${funcName}: dialogStatus = `, dialogStatus);
+    // Get initial data
+    const { senderId, attachments, dialogStatus } = await helpers.getInputData(event);
 
-    dialogs.handleAttachments(event, dialogStatus.data);
+    dialogs.handleAttachments(event, dialogStatus);
   } catch (error) {
     const message = `Error processing attachment: ${error}`;
     log.error(`${funcName}: ${message}`);

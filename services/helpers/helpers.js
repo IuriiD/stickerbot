@@ -296,6 +296,53 @@ async function forwardDfMessages(senderId, response) {
   }
 }
 
+/**
+ * getInputData() retrieves userId and input data
+ * (text for text message, button payload for button click or
+ * attachments) from FB message and dialog status from DB
+ */
+async function getInputData(event) {
+  const funcName = 'getInputData()';
+  try {
+    const inputData = {
+      text: null,
+      btnPayload: null,
+      attachments: null,
+      dialogStatus: null,
+    };
+    const senderId = event.sender.id;
+    log.info(`${funcName}: senderId = ${senderId}`);
+    if (!senderId) {
+      const message = 'event.sender.id is empty, aborting';
+      log.error(`${funcName}: ${message}`);
+      return { status: 500, data: message };
+    }
+    inputData.senderId = senderId;
+
+    if (event.message && event.message.text) {
+      inputData.text = event.message.text;
+    } else if (event.postback && event.postback.payload) {
+      inputData.btnPayload = event.postback.payload;
+    } else if (event.message && event.message.attachments) {
+      inputData.attachments = event.message.attachments;
+    }
+
+    const dialogStatusData = await getStatus(senderId);
+    log.info(`${funcName}: dialogStatus = `, dialogStatusData);
+    if (dialogStatusData.status === 200) {
+      inputData.dialogStatus = dialogStatusData.data;
+    } else {
+      log.error(`${funcName}: ${dialogStatusData.data}`);
+    }
+
+    return { status: 200, data: inputData };
+  } catch (error) {
+    const message = `Error getting input data: ${error}`;
+    log.error(`${funcName}: ${message}`);
+    return { status: 500, data: message };
+  }
+}
+
 module.exports = {
   getStatus,
   setStatus,
@@ -303,6 +350,7 @@ module.exports = {
   getUserByPSID,
   getStickerTemplatesCarousel,
   getRandomPhrase,
+  getInputData,
   // EXTRA
   createProjectParams,
   getButtonPostback,

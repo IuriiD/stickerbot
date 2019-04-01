@@ -1,10 +1,9 @@
-const i18n = require('i18n');
-
 const log = require('../../../config/logger');
 const config = require('../../../config');
 const { sendMessage, sendTyping } = require('../../../lib/fb-graph-api/');
 const templates = require('../../helpers/templates');
 const helpers = require('../../helpers/helpers');
+const constants = require('../../helpers/constants');
 
 async function sendImage(senderId) {
   const funcName = 'sendImage()';
@@ -14,12 +13,11 @@ async function sendImage(senderId) {
       `${funcName}: Perfect choice 😎 To start please send me an image or enter a query and I will suggest some images for you.`,
     );
     const thatsAGoodImagePhraseVariants = [
-      i18n.__('perfect_choice'),
-      i18n.__('ok_lets_start'),
-      i18n.__('gonna_be_perfect_sticker'),
+      constants.perfect_choice,
+      constants.ok_lets_start,
+      constants.gonna_be_perfect_sticker,
     ];
-    await sendMessage(senderId, templates.textTemplate(`${helpers.getRandomPhrase(thatsAGoodImagePhraseVariants)} ${i18n.__('to_start_send_image')}`));
-
+    await sendMessage(senderId, templates.textTemplate(`${helpers.getRandomPhrase(thatsAGoodImagePhraseVariants)} ${constants.to_start_choose_template}`));
   } catch (error) {
     log.error(`${funcName}: error =`, error);
   }
