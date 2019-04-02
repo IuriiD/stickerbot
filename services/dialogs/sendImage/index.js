@@ -14,10 +14,15 @@ async function sendImage(senderId) {
     );
     const thatsAGoodImagePhraseVariants = [
       constants.perfect_choice,
-      constants.ok_lets_start,
+      constants.excellent_taste,
       constants.gonna_be_perfect_sticker,
     ];
-    await sendMessage(senderId, templates.textTemplate(`${helpers.getRandomPhrase(thatsAGoodImagePhraseVariants)} ${constants.to_start_choose_template}`));
+    const randomPhrase = helpers.getRandomPhrase(thatsAGoodImagePhraseVariants);
+    log.info(`${funcName}: randomPhrase =`, randomPhrase);
+    await sendMessage(
+      senderId,
+      templates.textTemplate(`${randomPhrase} ${constants.to_start_send_image}`),
+    );
   } catch (error) {
     log.error(`${funcName}: error =`, error);
   }

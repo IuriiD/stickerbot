@@ -15,10 +15,7 @@ async function defaultFallbackIntent(senderId) {
     // [Make a sticker] [Load a sticker] [Help]
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
     const buttons = [
-      templates.postbackButton(
-        constants.btn_payload_new_sticker,
-        constants.btn_payload_new_sticker,
-      ),
+      templates.postbackButton(constants.btn_title_new_sticker, constants.btn_payload_new_sticker),
       templates.postbackButton(
         constants.btn_title_load_sticker,
         constants.btn_payload_load_sticker,

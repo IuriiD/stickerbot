@@ -9,11 +9,11 @@ const constants = {
   to_start_send_image:
     'To start please send me an image or enter a query and I will suggest some images for you.',
   perfect_choice: 'Perfect choice 😎',
-  ok_lets_start: "Ok, let's start.",
+  excellent_taste: 'You have excellent taste 😎',
   gonna_be_perfect_sticker: 'I feel that this gonna be a perfect sticker 😉',
   perfect_one: "This one is perfect. I will save it in Templates in case you'll want to reuse it.",
   replace_photo_or_provide_text:
-    'If you\'ld like to replace the image please click "Replace image". If it\'s Ok, please send me the text for your sticker (%s symbols max).',
+    'If you\'ld like to replace the image please click "Replace image". If it\'s Ok, please send me the text for your sticker.',
   replace_image: 'Replace image',
   resend_image:
     'Ok, please send me another one. Remember that it should be in jpeg or png format, not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max.',
@@ -65,6 +65,7 @@ const constants = {
   btn_title_new_sticker: 'New sticker',
   btn_title_load_sticker: 'Load a sticker',
   btn_title_help: 'Help',
+  btn_title_replace_image: 'Replace image',
   // Payloads
   btn_payload_new_sticker: 'NEW_STICKER',
   btn_payload_load_sticker: 'LOAD_STICKER',
@@ -73,9 +74,11 @@ const constants = {
   btn_payload_sticker_template: 'STICKERTEMPLATE#%s',
   btn_payload_confirm_restart_yes: 'CONFIRM_RESTART_YES',
   btn_payload_confirm_restart_no: 'CONFIRM_RESTART_NO',
+  btn_payload_replace_image: 'REPLACE_IMAGE',
   // ==> Dialog statuses
   status_awaiting_image: 'awaitingImage',
   status_choosing_template: 'choosingTemplate',
+  status_awaiting_sticker_text: 'awaitingStickerText',
   // ==> Custom error messages
   err501: 'Failed to create user',
   err502: 'Error fetching user from DB',

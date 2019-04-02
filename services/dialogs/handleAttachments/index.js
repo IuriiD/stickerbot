@@ -1,70 +1,55 @@
-const i18n = require('i18n');
-
 const log = require('../../../config/logger');
 const config = require('../../../config');
-const { sendMessage, sendTyping, getUserData } = require('../../../lib/fb-graph-api/');
+const { sendMessage, sendTyping } = require('../../../lib/fb-graph-api/');
 const templates = require('../../helpers/templates');
 const constants = require('../../helpers/constants');
+const fileHandling = require('../../helpers/fileHandling');
+const helpers = require('../../helpers/helpers');
 
-async function handleAttachments(event, dialogStatus) {
+async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
   const funcName = 'handleAttachments()';
-  const senderId = event.sender.id;
-
-  // Process image depending on dialog status
-  if (!dialogStatus || (dialogStatus && !dialogStatus.includes('awaitingImage'))) {
-    // Nice image but what do you want? [Make a sticker] [Help] etc
-    const buttons = [
-      templates.postbackButton(
-        constants.btn_payload_new_sticker,
-        constants.btn_payload_new_sticker,
-      ),
-      templates.postbackButton(constants.btn_title_help, constants.btn_payload_help),
-    ];
-    await sendMessage(senderId, templates.buttonTemplate(constants.nice_image_but_wtf, buttons));
-    // .textTemplate(event.message.attachments[0].payload.url));
-  }
-
-  // Save image to server
-  // Depending on template selected - generate a [pre-]sticker
-  // Update dialogStatus
-  // If ready sticker - save it to S3 and record in DB
-  // We won't be saving partly ready stickers ('superTemplates') so far
-
-  console.log(JSON.stringify(event, null, 2));
+  log.info(
+    `${funcName}: senderId = ${senderId}, attachmentUrl = ${attachmentUrl}, dialogStatus = ${dialogStatus}`,
+  );
   try {
-    const senderId = event.sender.id;
-
-    if (
-      event.message.attachments[0]
-      && event.message.attachments[0].type === 'image'
-      && !event.message.sticker_id
-    ) {
-      console.log('Good image');
-      await sendMessage(senderId, t.textTemplate(event.message.attachments[0].payload.url));
-      const mediaParams = {
-        media_type: 'image',
-        url: event.message.attachments[0].payload.url,
-      };
-      console.log(JSON.stringify(mediaParams, null, 2));
-      await sendMessage(senderId, {
-        attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'media',
-            elements: [
-              {
-                media_type: 'image',
-                url: event.message.attachments[0].payload.url,
-              },
-            ],
-          },
-        },
-      });
+    // Process image depending on dialog status
+    await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
+    if (!dialogStatus || (dialogStatus && !dialogStatus.includes('awaitingImage'))) {
+      // Nice image but what do you want? [Make a sticker] [Help] etc
+      const buttons = [
+        templates.postbackButton(
+          constants.btn_title_new_sticker,
+          constants.btn_payload_new_sticker,
+        ),
+        await templates.postbackButton(constants.btn_title_help, constants.btn_payload_help),
+      ];
+      await sendMessage(senderId, templates.buttonTemplate(constants.nice_image_but_wtf, buttons));
     } else {
-      console.log('Bad image');
+      // Download image
+      const fileDownload = await fileHandling.downloadImage(attachmentUrl, senderId);
+      log.info(`${funcName}: fileDownload =`, fileDownload);
+      if (fileDownload.status === 200) {
+        await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
+        // await sendMessage(senderId, templates.textTemplate(fileDownload.data));
+        await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
+        const buttons = [
+          templates.postbackButton(
+            constants.btn_title_replace_image,
+            constants.btn_payload_replace_image,
+          ),
+        ];
+        await sendMessage(
+          senderId,
+          templates.buttonTemplate(constants.replace_photo_or_provide_text, buttons),
+        );
+        // Dialog status >> 'awaitingStickerText'
+        const setStatus = await helpers.setStatus(senderId, constants.status_awaiting_sticker_text);
+        log.info(`${funcName}: setStatus =`, setStatus);
+      }
     }
   } catch (error) {
-    log.error(`defaultWelcomeIntent() error: ${error}`);
+    log.error(`${funcName}: error =`, error);
+    return { status: 500, data: error };
   }
 }
 

@@ -15,28 +15,36 @@ async function botMessage(event) {
   const funcName = 'botMessage()';
   try {
     // Get initial data
-    const { senderId, text: message, dialogStatus } = await helpers.getInputData(event);
+    const initialData = await helpers.getInputData(event);
+    if (initialData.status === 500) {
+      log.error(`${funcName}: ${initialData.data}`);
+      return;
+    }
+    const { senderId, text: message, dialogStatus } = initialData.data;
 
     // Greeting
     if (constants.greetings.includes(message.trim().toLowerCase())) {
       if (!dialogStatus) {
         // Greeet user and suggest to choose a sticker template
+        dialogs.defaultWelcomeIntent(senderId);
         // Dialog status >> 'choosingTemplate'
         const setStatus = await helpers.setStatus(senderId, constants.status_choosing_template);
         log.info(`${funcName}: setStatus =`, setStatus);
-        return dialogs.defaultWelcomeIntent(senderId);
+        return;
       }
 
       // But in case we are in the middle of some flow - ask user to confirm restarting
       // No dialog status change
-      return dialogs.confirmRestart(senderId);
+      dialogs.confirmRestart(senderId);
+      return;
     }
 
     // I didn't understand you
+    dialogs.defaultFallbackIntent(senderId);
     // Dialog status >> null
     const clearStatus = await helpers.setStatus(senderId, null);
     log.info(`${funcName}: clearStatus =`, clearStatus);
-    return dialogs.defaultFallbackIntent(senderId);
+    return;
   } catch (error) {
     log.error(`${funcName}: ${error}`);
     const senderId = event.sender.id;
@@ -49,17 +57,23 @@ async function botButton(event) {
   const funcName = 'botButton()';
   try {
     // Get initial data
-    const { senderId, btnPayload: payload, dialogStatus } = await helpers.getInputData(event);
+    const initialData = await helpers.getInputData(event);
+    if (initialData.status === 500) {
+      log.error(`${funcName}: ${initialData.data}`);
+      return;
+    }
+    const { senderId, btnPayload: payload, dialogStatus } = initialData.data;
 
     switch (payload) {
       // Get started
       case constants.btn_payload_get_started: {
         if (!dialogStatus) {
           // Greeet user and suggest to choose a sticker template
+          dialogs.defaultWelcomeIntent(senderId);
           // Dialog status >> 'choosingTemplate'
           const setStatus = await helpers.setStatus(senderId, constants.status_choosing_template);
           log.info(`${funcName}: setStatus =`, setStatus);
-          return dialogs.defaultWelcomeIntent(senderId);
+          return;
         }
         break;
       }
@@ -68,10 +82,11 @@ async function botButton(event) {
       case constants.btn_payload_confirm_restart_yes: {
         log.info(`${funcName}: Confirm restart >> Yes, launching dialog "defaultWelcomeIntent"`);
         if (dialogStatus) {
+          dialogs.defaultWelcomeIntent(senderId);
           // Dialog status >> 'choosingTemplate'
           const setStatus = await helpers.setStatus(senderId, constants.status_choosing_template);
           log.info(`${funcName}: setStatus =`, setStatus);
-          return dialogs.defaultWelcomeIntent(senderId);
+          return;
         }
 
         // Ok, then continue
@@ -79,7 +94,8 @@ async function botButton(event) {
         log.info(
           `${funcName}: Confirm restart >> No, launching dialog "okThenGoOn", dialog status unchanged`,
         );
-        return dialogs.okThenGoOn(senderId);
+        dialogs.okThenGoOn(senderId);
+        return;
       }
 
       // Confirm restart - No
@@ -89,7 +105,8 @@ async function botButton(event) {
         log.info(
           `${funcName}: Confirm restart >> No, launching dialog "okThenGoOn", dialog status unchanged`,
         );
-        return dialogs.okThenGoOn(senderId);
+        dialogs.okThenGoOn(senderId);
+        return;
       }
 
       // Sticker Templates - Polaroid-1
@@ -98,13 +115,14 @@ async function botButton(event) {
         stickerTemplates.polaroid1.templateCodeName,
       )}`: {
         log.info(`${funcName}: Choose templage >> POLAROID1`);
+        dialogs.sendImage(senderId);
         // Dialog status >> 'POLAROID1#awaitingImage'
         const setStatus = await helpers.setStatus(
           senderId,
           `${stickerTemplates.polaroid1.templateCodeName}#${constants.status_awaiting_image}`,
         );
         log.info(`${funcName}: setStatus =`, setStatus);
-        return dialogs.sendImage(senderId);
+        return;
       }
       default:
         log.info("We've got a botton click from non-existing button!");
@@ -121,9 +139,14 @@ async function botAttachment(event) {
   const funcName = 'botAttachment()';
   try {
     // Get initial data
-    const { senderId, attachments, dialogStatus } = await helpers.getInputData(event);
+    const initialData = await helpers.getInputData(event);
+    if (initialData.status === 500) {
+      log.error(`${funcName}: ${initialData.data}`);
+      return;
+    }
+    const { senderId, attachmentUrl, dialogStatus } = initialData.data;
 
-    dialogs.handleAttachments(event, dialogStatus);
+    dialogs.handleAttachments(senderId, attachmentUrl, dialogStatus);
   } catch (error) {
     const message = `Error processing attachment: ${error}`;
     log.error(`${funcName}: ${message}`);

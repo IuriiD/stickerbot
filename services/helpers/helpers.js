@@ -135,6 +135,11 @@ async function setStatus(userId, newStatus) {
 function getRandomPhrase(phrasesArray) {
   if (phrasesArray.length === 0) return false;
   const randPos = Math.floor(Math.random() * (phrasesArray.length + 1));
+  log.info(
+    `randPos = ${randPos}, phrasesArray.length = ${
+      phrasesArray.length
+    }, phrasesArray = ${phrasesArray}`,
+  );
   return phrasesArray[randPos];
 }
 
@@ -307,7 +312,7 @@ async function getInputData(event) {
     const inputData = {
       text: null,
       btnPayload: null,
-      attachments: null,
+      attachmentUrl: null,
       dialogStatus: null,
     };
     const senderId = event.sender.id;
@@ -319,12 +324,19 @@ async function getInputData(event) {
     }
     inputData.senderId = senderId;
 
+    log.info(`${funcName}: event = `, event);
+
     if (event.message && event.message.text) {
       inputData.text = event.message.text;
     } else if (event.postback && event.postback.payload) {
       inputData.btnPayload = event.postback.payload;
     } else if (event.message && event.message.attachments) {
-      inputData.attachments = event.message.attachments;
+      if (event.message.attachments[0].type === 'image') {
+        const imageUrl = event.message.attachments[0].payload.url;
+        if (!imageUrl.includes('.gif')) {
+          inputData.attachmentUrl = imageUrl;
+        }
+      }
     }
 
     const dialogStatusData = await getStatus(senderId);
@@ -332,9 +344,10 @@ async function getInputData(event) {
     if (dialogStatusData.status === 200) {
       inputData.dialogStatus = dialogStatusData.data;
     } else {
-      log.error(`${funcName}: ${dialogStatusData.data}`);
+      inputData.dialogStatus = null;
     }
 
+    log.info(`${funcName}: inputData =`, inputData);
     return { status: 200, data: inputData };
   } catch (error) {
     const message = `Error getting input data: ${error}`;
