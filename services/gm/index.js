@@ -2,21 +2,26 @@ const path = require('path');
 const gm = require('gm').subClass({ imageMagick: true });
 const log = require('../../config/logger');
 
-const photoPath = path.join(__dirname, '../..', 'temp');
+const rawPhotoPath = path.join(__dirname, '../..', 'uploads/raw');
+const finalPhotoPath = path.join(__dirname, '../..', 'uploads');
 
 /**
  * polaroid_v1() creates a polaroid-style sticker (v1)
  * @param {string} text Text to display in polaroid-style sticker
  * @returns {string} Url/path to the stiker file
  */
-async function polaroid_v1(filePath, text) {
+async function polaroidV1(fileName, text) {
+  const funcName = 'polaroidV1()';
+  log.info(
+    `${funcName}: fileName = ${fileName}, text = ${text}, source image path = ${rawPhotoPath}/${fileName}, target file path = ${finalPhotoPath}/${fileName}`,
+  );
   try {
     gm()
       .command('convert')
       .in('-caption', text)
       .in('-font', 'Ubuntu')
       .in('-gravity', 'center')
-      .in(filePath)
+      .in(`${rawPhotoPath}/${fileName}`)
       .in('-auto-orient')
       .in('-thumbnail', '250x250')
       .in('-sharpen', '10')
@@ -25,24 +30,26 @@ async function polaroid_v1(filePath, text) {
       .in('-background', 'grey20')
       .in('+polaroid')
       .in('-background', 'Transparent')
-      .write(`${photoPath}/result_${Math.random()}.png`, (err) => {
+      .write(`${finalPhotoPath}/${fileName}`, (err) => {
         if (err) {
           const message = `Failed to create a POLAROID_V1 sticker: ${err}`;
-          log.error(`polaroid_v1(): ${message}`);
-          return { status: 'error', payload: message };
+          log.error(`${funcName}: ${message}`);
+          return { status: 500, data: message };
         }
         if (!err) {
-          const message = `POLAROID_V1 sticker for file ${filePath} and text "${text}" successfully created`;
-          log.info(`polaroid_v1(): ${message}`);
-          return { status: 'ok', payload: `polaroid_v1(): ${message}` };
+          const message = `POLAROID_V1 sticker for file ${fileName} and text "${text}" successfully created`;
+          log.info(`${funcName}: ${message}`);
+          return { status: 200, data: `polaroid_v1(): ${message}` };
         }
       });
   } catch (error) {
     const message = `Failed to create a POLAROID_V1 sticker: ${error}`;
-    log.error(`polaroid_v1(): ${message}`);
-    return { status: 'error', payload: message };
+    log.error(`${funcName}: ${message}`);
+    return { status: 500, data: message };
   }
 }
+
+module.exports = { polaroidV1 };
 /*
 const fileName = 'IMG_0798.JPG';
 const fileName1 = 'IMG_0764.JPG';

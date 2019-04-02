@@ -27,6 +27,7 @@ const constants = {
   yes: 'Yes',
   no: 'No',
   ok_then_go_on: "Ok, then let's continue with what we were doing 😉",
+  dummy_text: 'Your text goes here',
   greetings: [
     'hi',
     'hello',

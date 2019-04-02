@@ -5,6 +5,7 @@ const templates = require('../../helpers/templates');
 const constants = require('../../helpers/constants');
 const fileHandling = require('../../helpers/fileHandling');
 const helpers = require('../../helpers/helpers');
+const stickers = require('../../gm/');
 
 async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
   const funcName = 'handleAttachments()';
@@ -29,8 +30,11 @@ async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
       const fileDownload = await fileHandling.downloadImage(attachmentUrl, senderId);
       log.info(`${funcName}: fileDownload =`, fileDownload);
       if (fileDownload.status === 200) {
+        // Generate a sticker with dummy text
+        const fileName = fileDownload.data.split('/').slice(-1)[0];
+        const sticker = await stickers.polaroidV1(fileName, constants.dummy_text);
+
         await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
-        // await sendMessage(senderId, templates.textTemplate(fileDownload.data));
         await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
         const buttons = [
           templates.postbackButton(
@@ -40,7 +44,10 @@ async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
         ];
         await sendMessage(
           senderId,
-          templates.buttonTemplate(constants.replace_photo_or_provide_text, buttons),
+          templates.buttonTemplate(
+            `${constants.replace_photo_or_provide_text} - ${sticker}`,
+            buttons,
+          ),
         );
         // Dialog status >> 'awaitingStickerText'
         const setStatus = await helpers.setStatus(senderId, constants.status_awaiting_sticker_text);
