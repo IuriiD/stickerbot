@@ -5,6 +5,7 @@ const templates = require('../../helpers/templates');
 const constants = require('../../helpers/constants');
 const fileHandling = require('../../helpers/fileHandling');
 const helpers = require('../../helpers/helpers');
+const gm = require('../../gm/');
 
 async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
   const funcName = 'handleAttachments()';
@@ -29,6 +30,8 @@ async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
       const fileDownload = await fileHandling.downloadImage(attachmentUrl, senderId);
       log.info(`${funcName}: fileDownload =`, fileDownload);
       if (fileDownload.status === 200) {
+        const sticket = await gm.polaroidV1();
+
         await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
         // await sendMessage(senderId, templates.textTemplate(fileDownload.data));
         await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
