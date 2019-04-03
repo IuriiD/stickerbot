@@ -134,7 +134,7 @@ async function setStatus(userId, newStatus) {
  */
 function getRandomPhrase(phrasesArray) {
   if (phrasesArray.length === 0) return false;
-  const randPos = Math.floor(Math.random() * (phrasesArray.length + 1));
+  const randPos = Math.floor(Math.random() * phrasesArray.length);
   log.info(
     `randPos = ${randPos}, phrasesArray.length = ${
       phrasesArray.length

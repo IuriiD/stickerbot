@@ -74,7 +74,7 @@ function generic(title, url, buttons, subtitle = '') {
       type: 'template',
       payload: {
         template_type: 'generic',
-        image_aspect_ratio: 'square',
+        // image_aspect_ratio: 'square',
         elements: [
           {
             title,

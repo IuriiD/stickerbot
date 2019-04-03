@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
+const s3 = require('./lib/aws/s3');
 
 const routs = require('./routes/');
 const config = require('./config/');

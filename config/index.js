@@ -14,6 +14,18 @@ const schema = joi
     FB_API_BASE_URL: joi.string().required(),
     FB_APP_ID: joi.number().required(),
     VERIFY_TOKEN: joi.string().required(),
+    BASE_URL: joi.string().required(),
+    DB_USERNAME: joi.string().required(),
+    DB_PASSWORD: joi.string().required(),
+    DB_DATABASE: joi.string().required(),
+    DB_HOST: joi.string().required(),
+    AWS_ACCESSKEY: joi.string().required(),
+    AWS_SECRETKEY: joi.string().required(),
+    AWS_REGION: joi.string().required(),
+    AWS_BUCKET: joi.string().required(),
+    AWS_PREVIEW_FOLDER: joi.string().required(),
+    AWS_STICKER_FOLDER: joi.string().required(),
+    AWS_TEMPLATES_FOLDER: joi.string().required(),
     DEFAULT_MSG_DELAY_MSEC: joi
       .number()
       .required()

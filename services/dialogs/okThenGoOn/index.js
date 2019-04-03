@@ -1,5 +1,3 @@
-const i18n = require('i18n');
-
 const log = require('../../../config/logger');
 const config = require('../../../config');
 const { sendMessage, sendTyping } = require('../../../lib/fb-graph-api/');

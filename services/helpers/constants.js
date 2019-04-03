@@ -12,8 +12,9 @@ const constants = {
   excellent_taste: 'You have excellent taste 😎',
   gonna_be_perfect_sticker: 'I feel that this gonna be a perfect sticker 😉',
   perfect_one: "This one is perfect. I will save it in Templates in case you'll want to reuse it.",
+  sticker_like_this: "We'll get a sticker like this",
   replace_photo_or_provide_text:
-    'If you\'ld like to replace the image please click "Replace image". If it\'s Ok, please send me the text for your sticker.',
+    'Now please send me the text for your sticker. You can also replace the image',
   replace_image: 'Replace image',
   resend_image:
     'Ok, please send me another one. Remember that it should be in jpeg or png format, not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max.',
@@ -27,6 +28,7 @@ const constants = {
   yes: 'Yes',
   no: 'No',
   ok_then_go_on: "Ok, then let's continue with what we were doing 😉",
+  dummy_text: 'Your text goes here',
   greetings: [
     'hi',
     'hello',
@@ -82,6 +84,8 @@ const constants = {
   // ==> Custom error messages
   err501: 'Failed to create user',
   err502: 'Error fetching user from DB',
+  // ==> Miscellaneous
+  imgMimeType: 'image/png',
 };
 
 module.exports = constants;
