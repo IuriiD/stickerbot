@@ -1,7 +1,7 @@
 const fs = require('fs');
 const log = require('../../../config/logger');
 const config = require('../../../config');
-const { sendMessage, sendTyping } = require('../../../lib/fb-graph-api/');
+const { sendMessage, sendTyping, getFBAttachmentId } = require('../../../lib/fb-graph-api/');
 const templates = require('../../helpers/templates');
 const constants = require('../../helpers/constants');
 const fileHandling = require('../../helpers/fileHandling');
@@ -10,6 +10,7 @@ const stickers = require('../../gm/');
 const s3 = require('../../../lib/aws/s3');
 const stickerTemplates = require('../../helpers/stickerTemplates');
 
+// Response to getting image while making Polaroid sticker
 async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
   const funcName = 'handleAttachments()';
   log.info(
@@ -32,6 +33,7 @@ async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
       // Download image
       const fileDownload = await fileHandling.downloadImage(attachmentUrl, senderId);
       log.info(`${funcName}: fileDownload =`, fileDownload);
+
       if (fileDownload.status === 200) {
         // Generate a sticker with dummy text
         const fileName = fileDownload.data.split('/').slice(-1)[0];
@@ -58,37 +60,47 @@ async function handleAttachments(senderId, attachmentUrl, dialogStatus) {
 
           log.info(`${funcName}: s3ImageUrl =`, s3ImageUrl);
           if (s3ImageUrl.status === 200) {
-            // We'll get a sticker like this
-            await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
-            await sendMessage(senderId, templates.textTemplate(constants.sticker_like_this));
+            // Upload image from S3 to FB and get attachment id
+            const gettingFbAttachmentId = await getFBAttachmentId(s3ImageUrl.data, 'image', true);
 
-            const buttons = [
-              templates.postbackButton(
-                constants.btn_title_replace_image,
-                constants.btn_payload_replace_image,
-              ),
-            ];
+            log.info(`${funcName}: gettingFbAttachmentId = `, gettingFbAttachmentId);
+            if (gettingFbAttachmentId.status === 200) {
+              // We'll get a sticker like this
+              await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
+              await sendMessage(senderId, templates.textTemplate(constants.sticker_like_this));
 
-            const stickerPreviewCard = templates.generic(
-              constants.replace_photo_or_provide_text,
-              s3ImageUrl.data,
-              buttons,
-            );
+              // Sticker preview (media template)
+              await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
+              const stickerPreview = templates.mediaTemplate('image', gettingFbAttachmentId.data);
+              if (stickerPreview.status === 200) {
+                await sendMessage(senderId, stickerPreview.data);
 
-            log.info(`${funcName}: stickerPreviewCard = ${JSON.stringify(stickerPreviewCard)}`);
+                // Button template with text "Now please send me the text for your sticker or replace the image
+                // if needed" and button [Replace image]
+                const buttons = [
+                  templates.postbackButton(
+                    constants.btn_title_replace_image,
+                    constants.btn_payload_replace_image,
+                  ),
+                ];
 
-            // Gallery with title "Now please send me the text for your sticker. You can also replace the image"
-            // Sticker preview (with text "Your text goes here") and a button [Replace image]
-            await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
-            await sendMessage(senderId, stickerPreviewCard);
-            // Dialog status >> 'awaitingStickerText'
-            const setStatus = await helpers.setStatus(
-              senderId,
-              `${stickerTemplates.polaroid1.templateCodeName}#${
-                constants.status_awaiting_sticker_text
-              }`,
-            );
-            log.info(`${funcName}: setStatus =`, setStatus);
+                const promptImageReplace = templates.buttonTemplate(
+                  constants.replace_photo_or_provide_text,
+                  buttons,
+                );
+                await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
+                await sendMessage(senderId, promptImageReplace);
+
+                // Dialog status >> 'awaitingStickerText'
+                const setStatus = await helpers.setStatus(
+                  senderId,
+                  `${stickerTemplates.polaroid1.templateCodeName}#${
+                    constants.status_awaiting_sticker_text
+                  }`,
+                );
+                log.info(`${funcName}: setStatus =`, setStatus);
+              }
+            }
           }
         }
       }

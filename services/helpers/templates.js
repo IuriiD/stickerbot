@@ -3,6 +3,8 @@
  * both basic and customised
  */
 
+const log = require('../../config/logger');
+
 // Text message
 function textTemplate(message) {
   return {
@@ -48,9 +50,10 @@ function buttonTemplate(text, buttons) {
   };
 }
 
-// Media template
-function mediaTemplate(mediaType, url /* , buttons = null */) {
-  return {
+// Media template (can have 1 button)
+function mediaTemplate(mediaType, attachmentId, url, buttons = null) {
+  const funcName = 'mediaTemplate()';
+  const payload = {
     attachment: {
       type: 'template',
       payload: {
@@ -58,13 +61,27 @@ function mediaTemplate(mediaType, url /* , buttons = null */) {
         elements: [
           {
             media_type: mediaType,
-            url,
+            // url,
             // buttons,
           },
         ],
       },
     },
   };
+  if (attachmentId) {
+    payload.attachment.payload.elements[0].attachment_id = attachmentId;
+  } else if (url) {
+    payload.attachment.payload.elements[0].url = url;
+  } else {
+    const message = 'Neither attachment id nor url were provided, aborting...';
+    log.error(`${funcName}: ${message}`);
+    return { status: 500, data: message };
+  }
+
+  if (buttons) {
+    payload.attachment.payload.elements[0].buttons = [buttons[0]];
+  }
+  return { status: 200, data: payload };
 }
 
 // Single generic template

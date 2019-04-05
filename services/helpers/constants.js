@@ -12,9 +12,11 @@ const constants = {
   excellent_taste: 'You have excellent taste 😎',
   gonna_be_perfect_sticker: 'I feel that this gonna be a perfect sticker 😉',
   perfect_one: "This one is perfect. I will save it in Templates in case you'll want to reuse it.",
-  sticker_like_this: "We'll get a sticker like this",
+  sticker_like_this1: "We'll get a sticker like this",
+  sticker_preview: 'This is roughly what we shall get',
+  sticker_like_this2: 'In the end your sticker will look like this',
   replace_photo_or_provide_text:
-    'Now please send me the text for your sticker. You can also replace the image',
+    'Now please send me the text for your sticker or replace the image if needed',
   replace_image: 'Replace image',
   resend_image:
     'Ok, please send me another one. Remember that it should be in jpeg or png format, not smaller than 150x150px and not bigger than 3500x2400px, 5Mb max.',
