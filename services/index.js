@@ -13,14 +13,16 @@ const stickerTemplates = require('./helpers/stickerTemplates');
 // Handle text inputs
 async function botMessage(event) {
   const funcName = 'botMessage()';
+  const senderId = event.sender.id;
   try {
     // Get initial data
     const initialData = await helpers.getInputData(event);
     if (initialData.status === 500) {
       log.error(`${funcName}: ${initialData.data}`);
+      dialogs.smthWentWrong(senderId);
       return;
     }
-    const { senderId, text: message, dialogStatus } = initialData.data;
+    const { text: message, dialogStatus } = initialData.data;
 
     // Greeting
     if (constants.greetings.includes(message.trim().toLowerCase())) {
@@ -47,22 +49,23 @@ async function botMessage(event) {
     return;
   } catch (error) {
     log.error(`${funcName}: ${error}`);
-    const senderId = event.sender.id;
-    dialogs.somethingWentWrong(senderId);
+    dialogs.smthWentWrong(senderId);
   }
 }
 
 // Handle clicks on 'postback'-buttons
 async function botButton(event) {
   const funcName = 'botButton()';
+  const senderId = event.sender.id;
   try {
     // Get initial data
     const initialData = await helpers.getInputData(event);
     if (initialData.status === 500) {
       log.error(`${funcName}: ${initialData.data}`);
+      dialogs.smthWentWrong(senderId);
       return;
     }
-    const { senderId, btnPayload: payload, dialogStatus } = initialData.data;
+    const { btnPayload: payload, dialogStatus } = initialData.data;
 
     switch (payload) {
       // Get started
@@ -130,27 +133,29 @@ async function botButton(event) {
   } catch (error) {
     const message = `Error processing button click: ${error}`;
     log.error(`${funcName}: ${message}`);
-    // @TODO Failure dialog
+    dialogs.smthWentWrong(senderId);
   }
 }
 
 // Handle attachments
 async function botAttachment(event) {
   const funcName = 'botAttachment()';
+  const senderId = event.sender.id;
   try {
     // Get initial data
     const initialData = await helpers.getInputData(event);
     if (initialData.status === 500) {
       log.error(`${funcName}: ${initialData.data}`);
+      dialogs.smthWentWrong(senderId);
       return;
     }
-    const { senderId, attachmentUrl, dialogStatus } = initialData.data;
+    const { attachmentUrl, dialogStatus } = initialData.data;
 
-    dialogs.handleAttachments(senderId, attachmentUrl, dialogStatus);
+    dialogs.handleAttachmentsPolaroid(senderId, attachmentUrl, dialogStatus);
   } catch (error) {
     const message = `Error processing attachment: ${error}`;
     log.error(`${funcName}: ${message}`);
-    // @TODO Failure dialog
+    dialogs.smthWentWrong(senderId);
   }
 }
 

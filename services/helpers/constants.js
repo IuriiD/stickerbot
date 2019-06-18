@@ -31,6 +31,7 @@ const constants = {
   no: 'No',
   ok_then_go_on: "Ok, then let's continue with what we were doing 😉",
   dummy_text: 'Your text goes here',
+  smth_went_wrong: "Sorry but something went wrong and we'll need to start over",
   greetings: [
     'hi',
     'hello',

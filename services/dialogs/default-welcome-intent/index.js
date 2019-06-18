@@ -4,6 +4,7 @@ const { sendMessage, sendTyping, getUserData } = require('../../../lib/fb-graph-
 const templates = require('../../helpers/templates');
 const constants = require('../../helpers/constants');
 const helpers = require('../../helpers/helpers');
+const smthWentWrong = require('../somethingWentWrong/');
 
 async function defaultWelcomeIntent(senderId) {
   const funcName = 'defaultWelcomeIntent()';
@@ -36,7 +37,10 @@ async function defaultWelcomeIntent(senderId) {
           `${funcName}: sending "Hi[, ${firstName}]! 👋 I'm a StickerBot, chatbot for making stickers."`,
         );
         if (firstName) {
-          await sendMessage(senderId, templates.textTemplate(constants.hello_username.replace('%s', firstName)));
+          await sendMessage(
+            senderId,
+            templates.textTemplate(constants.hello_username.replace('%s', firstName)),
+          );
         } else {
           await sendMessage(senderId, templates.textTemplate(constants.hello_no_username));
         }
@@ -47,13 +51,15 @@ async function defaultWelcomeIntent(senderId) {
         await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
         log.info(
           `${funcName}: sending "Welcome back[, ${
-          getUser.data.firstName
+            getUser.data.firstName
           }]! 👋 I'm a StickerBot, chatbot for making stickers."`,
         );
         if (getUser.data.firstName) {
           await sendMessage(
             senderId,
-            templates.textTemplate(constants.welcome_back_username.replace('%s', getUser.data.firstName)),
+            templates.textTemplate(
+              constants.welcome_back_username.replace('%s', getUser.data.firstName),
+            ),
           );
         } else {
           await sendMessage(senderId, templates.textTemplate(constants.welcome_back_no_username));
@@ -69,7 +75,6 @@ async function defaultWelcomeIntent(senderId) {
     log.info(`${funcName}: sending "To start please choose a template below"`);
     await sendMessage(senderId, templates.textTemplate(constants.to_start_choose_template));
 
-
     // Carousel of sticker templates
     await sendTyping(senderId, config.DEFAULT_MSG_DELAY_MSEC);
     const templatesAvailable = helpers.getStickerTemplatesCarousel();
@@ -81,6 +86,7 @@ async function defaultWelcomeIntent(senderId) {
     }
   } catch (error) {
     log.error(`${funcName} error: ${error}`);
+    smthWentWrong(senderId);
   }
 }
 
