@@ -47,9 +47,11 @@ async function downloadImage(url, psid) {
   }
 }
 
+/*
 const url = 'https://scontent.xx.fbcdn.net/v/t1.15752-9/53117722_1787598548008877_4165699608002953216_n.png?_nc_cat=102&_nc_ad=z-m&_nc_cid=0&_nc_zor=9&_nc_ht=scontent.xx&oh=66a6c7f945b2443b3fea0adbb40f417c&oe=5D1F784E';
 const url1 = 'https://scontent.xx.fbcdn.net/v/t1.15752-9/56178542_836027710109436_4291484549969346560_n.jpg?_nc_cat=107&_nc_ad=z-m&_nc_cid=0&_nc_zor=9&_nc_ht=scontent.xx&oh=0216cc590bebd555f17af9fb76571398&oe=5D45928F';
 const psid = 'TESTPSID';
+*/
 // downloadImage(url, psid).then(res => console.log(res));
 
 module.exports = { downloadImage };
